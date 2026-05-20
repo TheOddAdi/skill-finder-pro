@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skills Directory — Find experts across the company</title>
+    <meta
+      name="description"
+      content="Search coworkers by skill, role, or department. Internal directory for finding expertise across teams."
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- App root: views are swapped by script.js -->
+    <div id="app">
+      <!-- SEARCH VIEW -->
+      <main id="search-view" class="view view--active" aria-label="Search directory">
+        <header class="hero">
+          <div class="hero__chip">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-2.7 0-8 1.3-8 4v3h10v-3a4.7 4.7 0 0 1 2-3.7A12 12 0 0 0 8 13Zm8 0a8.7 8.7 0 0 0-1.5.1A5.4 5.4 0 0 1 18 17v3h6v-3c0-2.7-5.3-4-8-4Z"
+              />
+            </svg>
+            Internal Directory
+          </div>
+          <h1 class="hero__title">Find the right expert, fast.</h1>
+          <p class="hero__sub">
+            Search coworkers by skill, role, or department — built for finding the right person in
+            minutes, not days.
+          </p>
+        </header>
+
+        <!-- Sticky search bar -->
+        <div class="searchbar-wrap">
+          <div class="searchbar">
+            <svg viewBox="0 0 24 24" width="20" height="20" class="searchbar__icon" aria-hidden="true">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+              />
+            </svg>
+            <input
+              id="search-input"
+              type="search"
+              placeholder='Try "Python", "UX Research", "Financial Modeling"…'
+              aria-label="Search by skill, name, role, or department"
+              autocomplete="off"
+            />
+            <button id="clear-btn" class="clear-btn" hidden>Clear</button>
+          </div>
+          <p id="result-count" class="result-count">0 people found</p>
+        </div>
+
+        <!-- Results grid (populated by script.js) -->
+        <section id="results" class="grid" aria-label="Employee results"></section>
+
+        <!-- Empty state (hidden by default) -->
+        <div id="empty" class="empty" hidden>
+          <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+            />
+          </svg>
+          <h2>No matches</h2>
+          <p id="empty-text">Try a broader skill or check spelling.</p>
+        </div>
+      </main>
+
+      <!-- PROFILE VIEW (populated and shown by script.js) -->
+      <section id="profile-view" class="view" aria-label="Employee profile" hidden></section>
+    </div>
+
+    <script src="/script.js" defer></script>
+  </body>
+</html>
