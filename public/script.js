@@ -160,7 +160,7 @@ function renderCard(emp, query) {
   const chips = top
     .map((s) => {
       const matched = q && s.toLowerCase().includes(q);
-      return `<span class="chip ${matched ? "chip--matched" : ""}">${highlight(s, query)}</span>`;
+      return `<span class="chip ${matched ? "chip--matched" : ""}">${escapeHTML(s)}</span>`;
     })
     .join("");
 
@@ -169,10 +169,10 @@ function renderCard(emp, query) {
       <div class="card__head">
         <img class="card__avatar" src="${emp.avatar}" alt="" loading="lazy" width="56" height="56" />
         <div class="card__info">
-          <h3 class="card__name">${highlight(emp.name, query)}</h3>
-          <p class="card__title">${highlight(emp.title, query)}</p>
+          <h3 class="card__name">${escapeHTML(emp.name)}</h3>
+          <p class="card__title">${escapeHTML(emp.title)}</p>
           <div class="card__meta">
-            <span>🏢 ${highlight(emp.department, query)}</span>
+            <span>🏢 ${escapeHTML(emp.department)}</span>
             <span>✨ ${escapeHTML(emp.rank)}</span>
           </div>
         </div>
