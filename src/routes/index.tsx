@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 /**
  * The Skills Directory is now a plain HTML/CSS/JS app served from /public.
- * This route simply redirects to /app.html so visiting "/" still works.
+ * This route simply redirects to /index.html so visiting "/" still works.
  */
 export const Route = createFileRoute("/")({
   component: RedirectToApp,
@@ -21,12 +21,12 @@ export const Route = createFileRoute("/")({
 
 function RedirectToApp() {
   useEffect(() => {
-    window.location.replace("/app.html");
+    window.location.replace("/index.html");
   }, []);
   return (
     <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
       Loading Skills Directory…{" "}
-      <a href="/app.html">Open directly</a>
+      <a href="/index.html">Open directly</a>
     </div>
   );
 }
