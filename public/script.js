@@ -1,107 +1,12 @@
 /* =========================================================
-   Skills Directory — vanilla JS
-   Hardcoded mock data, search filtering, view switching
+   Skills Directory — vanilla JS UI
+   Data layer lives in /public/logic/employees.js (Lovable Cloud).
+   This file only renders + filters in memory.
    ========================================================= */
+import { getAllEmployees, getEmployeeById } from "./logic/employees.js";
 
-// ---------- Mock data (swap for a fetch() later) ----------
-const EMPLOYEES = [
-  {
-    id: "1",
-    name: "Amelia Chen",
-    title: "Senior Software Engineer",
-    department: "Engineering",
-    rank: "L5 · Senior",
-    avatar: "https://i.pravatar.cc/240?img=47",
-    skills: ["Python", "TypeScript", "Distributed Systems", "PostgreSQL", "Kubernetes", "GraphQL"],
-    bio: "Backend specialist focused on scaling event-driven platforms. Previously built payments infrastructure at two fintechs.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "2",
-    name: "Marcus Johnson",
-    title: "Lead UX Researcher",
-    department: "Design",
-    rank: "L6 · Lead",
-    avatar: "https://i.pravatar.cc/240?img=12",
-    skills: ["UX Research", "Usability Testing", "Figma", "Survey Design", "Ethnography"],
-    bio: "Mixed-methods researcher partnering with product to turn qualitative insight into shipped decisions.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "3",
-    name: "Priya Raman",
-    title: "Data Analyst",
-    department: "Business Intelligence",
-    rank: "L4 · Mid",
-    avatar: "https://i.pravatar.cc/240?img=45",
-    skills: ["SQL", "Python", "Tableau", "dbt", "Statistics", "A/B Testing"],
-    bio: "Turns messy operational data into clear narratives. Owns the growth analytics stack.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "4",
-    name: "Diego Alvarez",
-    title: "Senior Product Manager",
-    department: "Product",
-    rank: "L5 · Senior",
-    avatar: "https://i.pravatar.cc/240?img=33",
-    skills: ["Product Strategy", "Roadmapping", "Discovery", "SQL", "Stakeholder Management"],
-    bio: "Ships customer-facing products at the intersection of platform and growth. Ex-consultant.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "5",
-    name: "Hannah Weiss",
-    title: "Financial Analyst",
-    department: "Finance",
-    rank: "L3 · Associate",
-    avatar: "https://i.pravatar.cc/240?img=49",
-    skills: ["Financial Modeling", "Excel", "Forecasting", "Valuation", "Power BI"],
-    bio: "FP&A analyst supporting GTM. Builds three-statement models and rolling forecasts.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "6",
-    name: "Kenji Okafor",
-    title: "DevOps Engineer",
-    department: "Platform",
-    rank: "L4 · Mid",
-    avatar: "https://i.pravatar.cc/240?img=15",
-    skills: ["Terraform", "AWS", "Kubernetes", "CI/CD", "Observability", "Go"],
-    bio: "Keeps the lights on. Designs deploy pipelines and golden paths for product teams.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "7",
-    name: "Sofia Lindqvist",
-    title: "Machine Learning Engineer",
-    department: "Engineering",
-    rank: "L5 · Senior",
-    avatar: "https://i.pravatar.cc/240?img=20",
-    skills: ["Python", "PyTorch", "MLOps", "NLP", "Vector Search"],
-    bio: "Builds production ML systems for search and recommendations. Loves clean evaluation pipelines.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-  {
-    id: "8",
-    name: "Jordan Bailey",
-    title: "Product Designer",
-    department: "Design",
-    rank: "L4 · Mid",
-    avatar: "https://i.pravatar.cc/240?img=68",
-    skills: ["Figma", "Design Systems", "Prototyping", "Accessibility", "Motion"],
-    bio: "Systems-minded designer focused on accessible, fast interfaces.",
-    linkedin: "https://linkedin.com",
-    resume: "#",
-  },
-];
+// In-memory cache of all employees (fetched once on load, refreshed on demand).
+let EMPLOYEES = [];
 
 // ---------- DOM refs ----------
 const $search = document.getElementById("search-view");
@@ -114,8 +19,6 @@ const $emptyText = document.getElementById("empty-text");
 const $count = document.getElementById("result-count");
 
 // ---------- Utilities ----------
-
-/** Escape user-controlled strings so we can safely use innerHTML. */
 function escapeHTML(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;",
@@ -124,20 +27,6 @@ function escapeHTML(str) {
     '"': "&quot;",
     "'": "&#39;",
   }[c]));
-}
-
-/** Escape a string for safe use inside a RegExp. */
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** Wrap matches of `query` inside `text` with <mark>...</mark>. */
-function highlight(text, query) {
-  const safe = escapeHTML(text);
-  const q = query.trim();
-  if (!q) return safe;
-  const re = new RegExp(`(${escapeRegex(escapeHTML(q))})`, "ig");
-  return safe.replace(re, "<mark>$1</mark>");
 }
 
 // ---------- Search / filtering ----------
@@ -192,17 +81,18 @@ function renderResults() {
   if (list.length === 0) {
     $results.innerHTML = "";
     $empty.hidden = false;
-    $emptyText.textContent = `We couldn't find anyone matching "${query}". Try a broader skill or check spelling.`;
+    $emptyText.textContent = query
+      ? `We couldn't find anyone matching "${query}". Try a broader skill or check spelling.`
+      : "No employees yet.";
     return;
   }
 
   $empty.hidden = true;
   $results.innerHTML = list.map((emp) => renderCard(emp, query)).join("");
 
-  // Wire up card clicks (event delegation would also work)
   $results.querySelectorAll(".card").forEach((node) => {
-    node.addEventListener("click", () => {
-      const emp = EMPLOYEES.find((e) => e.id === node.dataset.id);
+    node.addEventListener("click", async () => {
+      const emp = await getEmployeeById(node.dataset.id);
       if (emp) showProfile(emp);
     });
   });
@@ -228,9 +118,7 @@ function renderProfile(emp) {
             </div>
           </div>
           <div class="profile__actions">
-            <a class="btn btn--primary" href="${emp.linkedin}" target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
+            <a class="btn btn--primary" href="${emp.linkedin}" target="_blank" rel="noreferrer">LinkedIn</a>
             <a class="btn btn--ghost" href="${emp.resume}">Resume</a>
           </div>
         </div>
@@ -263,7 +151,6 @@ function showProfile(emp) {
   $profile.hidden = false;
   $profile.classList.add("view--active");
   window.scrollTo({ top: 0, behavior: "smooth" });
-
   document.getElementById("back-btn").addEventListener("click", showSearch);
 }
 
@@ -283,4 +170,15 @@ $clear.addEventListener("click", () => {
   $input.focus();
 });
 
-renderResults();
+(async function init() {
+  $count.textContent = "Loading…";
+  try {
+    EMPLOYEES = await getAllEmployees();
+    renderResults();
+  } catch (err) {
+    console.error("Failed to load employees:", err);
+    $count.textContent = "Failed to load directory";
+    $empty.hidden = false;
+    $emptyText.textContent = "Couldn't reach the database. Please refresh.";
+  }
+})();
