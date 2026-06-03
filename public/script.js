@@ -159,7 +159,7 @@ function showProfile(emp) {
     $resume.addEventListener("click", async () => {
       try {
         $resume.disabled = true;
-        const filename = `${(emp.full_name || "employee").trim().replace(/\s+/g, "_")}_Resume.pdf`;
+        const filename = `${(emp.name || emp.full_name || "employee").trim().replace(/\s+/g, "_")}_Resume.pdf`;
         const url = await getResumeDownloadUrl(emp.resume, filename);
         if (url) window.open(url, "_blank", "noopener");
       } catch (err) {
