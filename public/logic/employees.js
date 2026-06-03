@@ -1,9 +1,9 @@
 /* =========================================================
-   Employee CRUD — talks to Lovable Cloud (Supabase) only.
-   All UI code should go through these functions, never
-   query the database directly.
+   Employee CRUD — talks to Lovable Cloud only.
+   All UI code should go through these functions.
    ========================================================= */
 import { supabase } from "./supabaseClient.js";
+import { uploadResume } from "./storage.js";
 
 const TABLE = "employees";
 
@@ -18,9 +18,8 @@ function fromRow(row) {
     rank: row.rank ?? "",
     skills: Array.isArray(row.skills) ? row.skills : [],
     bio: row.bio ?? "",
-    linkedin: row.linkedin_url ?? "#",
-    resume: row.resume_file_url ?? "#",
-    avatar: row.profile_photo_url ?? "",
+    linkedin: row.linkedin_url ?? "",
+    resume: row.resume_file_url ?? "", // storage path OR legacy url
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -37,7 +36,6 @@ function toRow(input) {
     bio: input.bio ?? null,
     linkedin_url: input.linkedin_url ?? input.linkedin ?? null,
     resume_file_url: input.resume_file_url ?? input.resume ?? null,
-    profile_photo_url: input.profile_photo_url ?? input.avatar ?? null,
   };
 }
 
@@ -62,10 +60,19 @@ export async function getEmployeeById(id) {
 }
 
 // ---------- Write ----------
-export async function createEmployee(employee) {
+/**
+ * Create an employee. `input` accepts either DB-style keys or UI keys.
+ * Pass `resumeFile` (a File) to upload a PDF and store the resulting path.
+ */
+export async function createEmployee(input, { resumeFile } = {}) {
+  let resumePath = input.resume_file_url ?? input.resume ?? null;
+  if (resumeFile) {
+    resumePath = await uploadResume(resumeFile);
+  }
+  const row = toRow({ ...input, resume_file_url: resumePath });
   const { data, error } = await supabase
     .from(TABLE)
-    .insert(toRow(employee))
+    .insert(row)
     .select()
     .single();
   if (error) throw error;

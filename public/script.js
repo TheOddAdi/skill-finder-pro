@@ -1,11 +1,12 @@
 /* =========================================================
    Skills Directory — vanilla JS UI
-   Data layer lives in /public/logic/employees.js (Lovable Cloud).
-   This file only renders + filters in memory.
+   Data layer lives in /public/logic/*.
+   This file only renders, filters in memory, and runs the modal.
    ========================================================= */
-import { getAllEmployees, getEmployeeById } from "./logic/employees.js";
+import { getAllEmployees, getEmployeeById, createEmployee } from "./logic/employees.js";
+import { getResumeDownloadUrl } from "./logic/storage.js";
 
-// In-memory cache of all employees (fetched once on load, refreshed on demand).
+// In-memory cache of all employees (fetched on load + after add).
 let EMPLOYEES = [];
 
 // ---------- DOM refs ----------
@@ -17,15 +18,16 @@ const $results = document.getElementById("results");
 const $empty = document.getElementById("empty");
 const $emptyText = document.getElementById("empty-text");
 const $count = document.getElementById("result-count");
+const $addBtn = document.getElementById("add-btn");
+const $modal = document.getElementById("add-modal");
+const $form = document.getElementById("add-form");
+const $formError = document.getElementById("add-error");
+const $submit = document.getElementById("add-submit");
 
 // ---------- Utilities ----------
 function escapeHTML(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
 }
 
@@ -56,7 +58,6 @@ function renderCard(emp, query) {
   return `
     <button class="card" data-id="${emp.id}" aria-label="Open profile for ${escapeHTML(emp.name)}">
       <div class="card__head">
-        <img class="card__avatar" src="${emp.avatar}" alt="" loading="lazy" width="56" height="56" />
         <div class="card__info">
           <h3 class="card__name">${escapeHTML(emp.name)}</h3>
           <p class="card__title">${escapeHTML(emp.title)}</p>
@@ -83,7 +84,7 @@ function renderResults() {
     $empty.hidden = false;
     $emptyText.textContent = query
       ? `We couldn't find anyone matching "${query}". Try a broader skill or check spelling.`
-      : "No employees yet.";
+      : "No employees yet. Click “+ Add person” to get started.";
     return;
   }
 
@@ -101,26 +102,26 @@ function renderResults() {
 // ---------- Rendering: profile ----------
 function renderProfile(emp) {
   const skills = emp.skills.map((s) => `<span class="chip">${escapeHTML(s)}</span>`).join("");
+  const linkedinBtn = emp.linkedin
+    ? `<a class="btn btn--primary" href="${escapeHTML(emp.linkedin)}" target="_blank" rel="noreferrer noopener">LinkedIn</a>`
+    : "";
+  const resumeBtn = emp.resume
+    ? `<button class="btn btn--ghost" id="resume-btn" type="button">Download resume</button>`
+    : "";
 
   return `
-    <button class="back-btn" id="back-btn" aria-label="Back to search">
-      ← Back to search
-    </button>
+    <button class="back-btn" id="back-btn" aria-label="Back to search">← Back to search</button>
     <article class="profile">
       <div class="profile__cover"></div>
       <div class="profile__body">
         <div class="profile__head">
           <div class="profile__identity">
-            <img class="profile__avatar" src="${emp.avatar}" alt="${escapeHTML(emp.name)}" />
             <div>
               <h1 class="profile__name">${escapeHTML(emp.name)}</h1>
               <p class="profile__role">${escapeHTML(emp.title)}</p>
             </div>
           </div>
-          <div class="profile__actions">
-            <a class="btn btn--primary" href="${emp.linkedin}" target="_blank" rel="noreferrer">LinkedIn</a>
-            <a class="btn btn--ghost" href="${emp.resume}">Resume</a>
-          </div>
+          <div class="profile__actions">${linkedinBtn}${resumeBtn}</div>
         </div>
 
         <dl class="profile__stats">
@@ -152,6 +153,22 @@ function showProfile(emp) {
   $profile.classList.add("view--active");
   window.scrollTo({ top: 0, behavior: "smooth" });
   document.getElementById("back-btn").addEventListener("click", showSearch);
+
+  const $resume = document.getElementById("resume-btn");
+  if ($resume) {
+    $resume.addEventListener("click", async () => {
+      try {
+        $resume.disabled = true;
+        const url = await getResumeDownloadUrl(emp.resume);
+        if (url) window.open(url, "_blank", "noopener");
+      } catch (err) {
+        console.error("Resume download failed:", err);
+        alert("Couldn't open resume.");
+      } finally {
+        $resume.disabled = false;
+      }
+    });
+  }
 }
 
 function showSearch() {
@@ -162,7 +179,81 @@ function showSearch() {
   $input.focus();
 }
 
-// ---------- Init ----------
+// ---------- Add person modal ----------
+function openModal() {
+  $modal.hidden = false;
+  $modal.setAttribute("aria-hidden", "false");
+  $formError.hidden = true;
+  setTimeout(() => $form.querySelector('[name="full_name"]').focus(), 50);
+}
+function closeModal() {
+  $modal.hidden = true;
+  $modal.setAttribute("aria-hidden", "true");
+  $form.reset();
+  $formError.hidden = true;
+}
+
+$addBtn.addEventListener("click", openModal);
+$modal.addEventListener("click", (e) => {
+  if (e.target.matches("[data-close]")) closeModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$modal.hidden) closeModal();
+});
+
+$form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $formError.hidden = true;
+
+  const fd = new FormData($form);
+  const resumeFile = fd.get("resume");
+  const hasResume = resumeFile && resumeFile.size > 0;
+
+  if (hasResume && resumeFile.type !== "application/pdf") {
+    $formError.textContent = "Resume must be a PDF file.";
+    $formError.hidden = false;
+    return;
+  }
+
+  const skills = String(fd.get("skills") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const payload = {
+    full_name: String(fd.get("full_name") || "").trim(),
+    role: String(fd.get("role") || "").trim(),
+    department: String(fd.get("department") || "").trim() || null,
+    rank: String(fd.get("rank") || "").trim() || null,
+    skills,
+    bio: String(fd.get("bio") || "").trim() || null,
+    linkedin_url: String(fd.get("linkedin_url") || "").trim() || null,
+  };
+
+  if (!payload.full_name || !payload.role || skills.length === 0) {
+    $formError.textContent = "Name, role, and at least one skill are required.";
+    $formError.hidden = false;
+    return;
+  }
+
+  try {
+    $submit.disabled = true;
+    $submit.textContent = "Adding…";
+    await createEmployee(payload, { resumeFile: hasResume ? resumeFile : null });
+    EMPLOYEES = await getAllEmployees();
+    renderResults();
+    closeModal();
+  } catch (err) {
+    console.error("Add failed:", err);
+    $formError.textContent = err.message || "Couldn't add this person.";
+    $formError.hidden = false;
+  } finally {
+    $submit.disabled = false;
+    $submit.textContent = "Add person";
+  }
+});
+
+// ---------- Search wiring ----------
 $input.addEventListener("input", renderResults);
 $clear.addEventListener("click", () => {
   $input.value = "";
@@ -170,6 +261,7 @@ $clear.addEventListener("click", () => {
   $input.focus();
 });
 
+// ---------- Init ----------
 (async function init() {
   $count.textContent = "Loading…";
   try {

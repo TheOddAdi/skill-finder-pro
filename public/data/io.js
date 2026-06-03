@@ -1,7 +1,6 @@
 /* =========================================================
    JSON import / export utilities.
-   Lets you bulk-load employees.json into the database
-   or dump the current database back to JSON.
+   Bulk-load employees.json into the database, or dump it back.
    ========================================================= */
 import { supabase } from "../logic/supabaseClient.js";
 import { createEmployee, getAllEmployees } from "../logic/employees.js";
@@ -53,6 +52,5 @@ export async function exportEmployeesToJSON() {
     bio: e.bio,
     linkedin_url: e.linkedin,
     resume_file_url: e.resume,
-    profile_photo_url: e.avatar,
   }));
 }
