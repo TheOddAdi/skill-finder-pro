@@ -65,6 +65,58 @@
     <section id="profile-view" class="view" aria-label="Employee profile" hidden></section>
   </div>
 
+  <!-- ADD PERSON MODAL -->
+  <div id="add-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+      <header class="modal__head">
+        <h2 id="add-modal-title">Add a person</h2>
+        <button class="modal__close" type="button" data-close aria-label="Close">×</button>
+      </header>
+      <form id="add-form" class="form" novalidate>
+        <div class="form__grid">
+          <label class="field">
+            <span>Full name *</span>
+            <input name="full_name" type="text" required maxlength="120" />
+          </label>
+          <label class="field">
+            <span>Role *</span>
+            <input name="role" type="text" required maxlength="120" />
+          </label>
+          <label class="field">
+            <span>Department</span>
+            <input name="department" type="text" maxlength="80" />
+          </label>
+          <label class="field">
+            <span>Rank / Seniority</span>
+            <input name="rank" type="text" maxlength="80" placeholder="e.g. Senior, Lead" />
+          </label>
+          <label class="field field--full">
+            <span>Skills (comma separated) *</span>
+            <input name="skills" type="text" required placeholder="Python, SQL, Tableau" />
+          </label>
+          <label class="field field--full">
+            <span>Bio</span>
+            <textarea name="bio" rows="3" maxlength="600"></textarea>
+          </label>
+          <label class="field field--full">
+            <span>LinkedIn URL</span>
+            <input name="linkedin_url" type="url" placeholder="https://linkedin.com/in/…" />
+          </label>
+          <label class="field field--full">
+            <span>Resume (PDF only)</span>
+            <input name="resume" type="file" accept="application/pdf" />
+          </label>
+        </div>
+        <p class="form__error" id="add-error" hidden></p>
+        <footer class="form__actions">
+          <button type="button" class="btn btn--ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary" id="add-submit">Add person</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="/public/script.js"></script>
 </body>
 
