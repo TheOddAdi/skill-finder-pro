@@ -27,12 +27,15 @@ export async function uploadResume(file) {
  * Falls back to returning the input untouched if it already looks
  * like an http(s) URL (legacy data).
  */
-export async function getResumeDownloadUrl(pathOrUrl) {
+export async function getResumeDownloadUrl(pathOrUrl, downloadName) {
   if (!pathOrUrl) return null;
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  const download = downloadName
+    ? downloadName.replace(/[^a-zA-Z0-9._-]/g, "_")
+    : true;
   const { data, error } = await supabase.storage
     .from(RESUMES_BUCKET)
-    .createSignedUrl(pathOrUrl, 60 * 10, { download: true });
+    .createSignedUrl(pathOrUrl, 60 * 10, { download });
   if (error) throw error;
   return data.signedUrl;
 }
