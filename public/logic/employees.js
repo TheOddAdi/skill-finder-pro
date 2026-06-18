@@ -7,6 +7,12 @@ import { uploadResume } from "./storage.js";
 
 const TABLE = "employees";
 
+/** Ensure a URL has a protocol; if missing, prepend https:// */
+function withProtocol(url) {
+  if (!url || typeof url !== "string") return url;
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
 /** Map a DB row to the shape the UI expects. */
 function fromRow(row) {
   if (!row) return null;
@@ -18,7 +24,7 @@ function fromRow(row) {
     rank: row.rank ?? "",
     skills: Array.isArray(row.skills) ? row.skills : [],
     bio: row.bio ?? "",
-    linkedin: row.linkedin_url ?? "",
+    linkedin: withProtocol(row.linkedin_url) ?? "",
     email: row.email ?? "",
     phone: row.phone ?? "",
     resume: row.resume_file_url ?? "",
