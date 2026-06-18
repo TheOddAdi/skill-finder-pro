@@ -19,9 +19,11 @@ export type Database = {
           bio: string | null
           created_at: string
           department: string | null
+          email: string
           full_name: string
           id: string
           linkedin_url: string | null
+          phone: string | null
           profile_photo_url: string | null
           rank: string | null
           resume_file_url: string | null
@@ -33,9 +35,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           department?: string | null
+          email: string
           full_name: string
           id?: string
           linkedin_url?: string | null
+          phone?: string | null
           profile_photo_url?: string | null
           rank?: string | null
           resume_file_url?: string | null
@@ -47,9 +51,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           department?: string | null
+          email?: string
           full_name?: string
           id?: string
           linkedin_url?: string | null
+          phone?: string | null
           profile_photo_url?: string | null
           rank?: string | null
           resume_file_url?: string | null

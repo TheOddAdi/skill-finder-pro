@@ -92,6 +92,14 @@
             <span>Rank / Seniority</span>
             <input name="rank" type="text" maxlength="80" placeholder="e.g. Senior, Lead" />
           </label>
+          <label class="field">
+            <span>Email *</span>
+            <input name="email" type="email" required maxlength="255" />
+          </label>
+          <label class="field">
+            <span>Phone</span>
+            <input name="phone" type="tel" maxlength="40" />
+          </label>
           <label class="field field--full">
             <span>Skills (comma separated) *</span>
             <input name="skills" type="text" required placeholder="Python, SQL, Tableau" />
@@ -128,7 +136,7 @@
             <textarea name="json_text" rows="8" placeholder='[{"full_name":"Jane Doe","role":"Engineer","skills":["Python"]}]'></textarea>
           </label>
         </div>
-        <p class="form__hint">Expected fields: full_name, role, department, rank, skills (array), bio, linkedin_url.</p>
+        <p class="form__hint">Expected fields: full_name, role, email (required, unique), phone, department, rank, skills (array), bio, linkedin_url.</p>
         <p class="form__error" id="json-error" hidden></p>
         <footer class="form__actions">
           <button type="button" class="btn btn--ghost" data-close>Cancel</button>
@@ -145,10 +153,10 @@
           </label>
           <label class="field field--full">
             <span>…or paste CSV text</span>
-            <textarea name="csv_text" rows="8" placeholder="full_name,role,department,rank,skills,bio,linkedin_url&#10;Jane Doe,Engineer,Eng,Senior,Python;SQL,Bio here,https://…"></textarea>
+            <textarea name="csv_text" rows="8" placeholder="full_name,role,email,phone,department,rank,skills,bio,linkedin_url&#10;Jane Doe,Engineer,jane@x.com,555-1212,Eng,Senior,Python;SQL,Bio,https://…"></textarea>
           </label>
         </div>
-        <p class="form__hint">First row = headers. Use <code>;</code> to separate multiple skills within the skills column.</p>
+        <p class="form__hint">First row = headers. <code>email</code> is required and must be unique. Use <code>;</code> to separate multiple skills.</p>
         <p class="form__error" id="csv-error" hidden></p>
         <footer class="form__actions">
           <button type="button" class="btn btn--ghost" data-close>Cancel</button>
