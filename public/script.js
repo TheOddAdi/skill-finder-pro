@@ -4,6 +4,7 @@
    This file only renders, filters in memory, and runs the modal.
    ========================================================= */
 import { getAllEmployees, getEmployeeById, createEmployee } from "./logic/employees.js";
+import { importEmployeesFromJSON } from "./data/io.js";
 import { getResumeDownloadUrl } from "./logic/storage.js";
 
 // In-memory cache of all employees (fetched on load + after add).
@@ -191,7 +192,11 @@ function closeModal() {
   $modal.hidden = true;
   $modal.setAttribute("aria-hidden", "true");
   $form.reset();
+  document.getElementById("json-form")?.reset();
+  document.getElementById("csv-form")?.reset();
   $formError.hidden = true;
+  document.getElementById("json-error")?.setAttribute("hidden", "");
+  document.getElementById("csv-error")?.setAttribute("hidden", "");
 }
 
 $addBtn.addEventListener("click", openModal);
@@ -251,6 +256,149 @@ $form.addEventListener("submit", async (e) => {
   } finally {
     $submit.disabled = false;
     $submit.textContent = "Add person";
+  }
+});
+
+// ---------- Tab switching ----------
+const $tabs = document.querySelectorAll(".tab");
+const $panels = document.querySelectorAll(".tab-panel");
+$tabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const name = tab.dataset.tab;
+    $tabs.forEach((t) => {
+      const active = t.dataset.tab === name;
+      t.classList.toggle("tab--active", active);
+      t.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    $panels.forEach((p) => {
+      const active = p.dataset.panel === name;
+      p.classList.toggle("tab-panel--active", active);
+      p.hidden = !active;
+    });
+  });
+});
+
+// ---------- JSON import ----------
+const $jsonForm = document.getElementById("json-form");
+const $jsonError = document.getElementById("json-error");
+const $jsonSubmit = document.getElementById("json-submit");
+
+async function readFileText(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result || ""));
+    r.onerror = () => reject(r.error);
+    r.readAsText(file);
+  });
+}
+
+$jsonForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $jsonError.hidden = true;
+  const fd = new FormData($jsonForm);
+  const file = fd.get("json_file");
+  const text = String(fd.get("json_text") || "").trim();
+  let raw = text;
+  try {
+    if (file && file.size > 0) raw = await readFileText(file);
+    if (!raw) throw new Error("Provide a JSON file or paste JSON.");
+    const parsed = JSON.parse(raw);
+    const rows = Array.isArray(parsed) ? parsed : [parsed];
+    $jsonSubmit.disabled = true;
+    $jsonSubmit.textContent = "Importing…";
+    const n = await importEmployeesFromJSON(rows);
+    EMPLOYEES = await getAllEmployees();
+    renderResults();
+    closeModal();
+    alert(`Imported ${n} ${n === 1 ? "person" : "people"}.`);
+  } catch (err) {
+    console.error("JSON import failed:", err);
+    $jsonError.textContent = err.message || "Couldn't import JSON.";
+    $jsonError.hidden = false;
+  } finally {
+    $jsonSubmit.disabled = false;
+    $jsonSubmit.textContent = "Import JSON";
+  }
+});
+
+// ---------- CSV import ----------
+const $csvForm = document.getElementById("csv-form");
+const $csvError = document.getElementById("csv-error");
+const $csvSubmit = document.getElementById("csv-submit");
+
+/** Minimal RFC4180-ish CSV parser (handles quoted fields, escaped quotes, CRLF). */
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === "\r") { /* ignore */ }
+      else field += c;
+    }
+  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+  return rows.filter((r) => r.length && r.some((v) => v !== ""));
+}
+
+function csvToEmployeeRows(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) throw new Error("CSV needs a header row and at least one data row.");
+  const headers = rows[0].map((h) => h.trim().toLowerCase());
+  return rows.slice(1).map((r) => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (r[i] ?? "").trim(); });
+    return {
+      full_name: obj.full_name || obj.name || "",
+      role: obj.role || obj.title || "",
+      department: obj.department || null,
+      rank: obj.rank || null,
+      skills: String(obj.skills || "")
+        .split(/[;,]/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+      bio: obj.bio || null,
+      linkedin_url: obj.linkedin_url || obj.linkedin || null,
+    };
+  });
+}
+
+$csvForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $csvError.hidden = true;
+  const fd = new FormData($csvForm);
+  const file = fd.get("csv_file");
+  const text = String(fd.get("csv_text") || "");
+  let raw = text;
+  try {
+    if (file && file.size > 0) raw = await readFileText(file);
+    if (!raw.trim()) throw new Error("Provide a CSV file or paste CSV.");
+    const rows = csvToEmployeeRows(raw);
+    if (rows.length === 0) throw new Error("No rows found in CSV.");
+    $csvSubmit.disabled = true;
+    $csvSubmit.textContent = "Importing…";
+    const n = await importEmployeesFromJSON(rows);
+    EMPLOYEES = await getAllEmployees();
+    renderResults();
+    closeModal();
+    alert(`Imported ${n} ${n === 1 ? "person" : "people"}.`);
+  } catch (err) {
+    console.error("CSV import failed:", err);
+    $csvError.textContent = err.message || "Couldn't import CSV.";
+    $csvError.hidden = false;
+  } finally {
+    $csvSubmit.disabled = false;
+    $csvSubmit.textContent = "Import CSV";
   }
 });
 

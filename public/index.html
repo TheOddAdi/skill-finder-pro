@@ -63,10 +63,18 @@
     <div class="modal__backdrop" data-close></div>
     <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
       <header class="modal__head">
-        <h2 id="add-modal-title">Add a person</h2>
+        <h2 id="add-modal-title">Add people</h2>
         <button class="modal__close" type="button" data-close aria-label="Close">×</button>
       </header>
-      <form id="add-form" class="form" novalidate>
+
+      <div class="tabs" role="tablist" aria-label="Add method">
+        <button type="button" class="tab tab--active" role="tab" data-tab="manual" aria-selected="true">Manual</button>
+        <button type="button" class="tab" role="tab" data-tab="json" aria-selected="false">Import JSON</button>
+        <button type="button" class="tab" role="tab" data-tab="csv" aria-selected="false">Import CSV</button>
+      </div>
+
+      <!-- MANUAL -->
+      <form id="add-form" class="form tab-panel tab-panel--active" data-panel="manual" novalidate>
         <div class="form__grid">
           <label class="field">
             <span>Full name *</span>
@@ -107,6 +115,47 @@
           <button type="submit" class="btn btn--primary" id="add-submit">Add person</button>
         </footer>
       </form>
+
+      <!-- JSON -->
+      <form id="json-form" class="form tab-panel" data-panel="json" novalidate hidden>
+        <div class="form__grid">
+          <label class="field field--full">
+            <span>Upload JSON file</span>
+            <input name="json_file" type="file" accept="application/json,.json" />
+          </label>
+          <label class="field field--full">
+            <span>…or paste JSON array</span>
+            <textarea name="json_text" rows="8" placeholder='[{"full_name":"Jane Doe","role":"Engineer","skills":["Python"]}]'></textarea>
+          </label>
+        </div>
+        <p class="form__hint">Expected fields: full_name, role, department, rank, skills (array), bio, linkedin_url.</p>
+        <p class="form__error" id="json-error" hidden></p>
+        <footer class="form__actions">
+          <button type="button" class="btn btn--ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary" id="json-submit">Import JSON</button>
+        </footer>
+      </form>
+
+      <!-- CSV -->
+      <form id="csv-form" class="form tab-panel" data-panel="csv" novalidate hidden>
+        <div class="form__grid">
+          <label class="field field--full">
+            <span>Upload CSV file</span>
+            <input name="csv_file" type="file" accept="text/csv,.csv" />
+          </label>
+          <label class="field field--full">
+            <span>…or paste CSV text</span>
+            <textarea name="csv_text" rows="8" placeholder="full_name,role,department,rank,skills,bio,linkedin_url&#10;Jane Doe,Engineer,Eng,Senior,Python;SQL,Bio here,https://…"></textarea>
+          </label>
+        </div>
+        <p class="form__hint">First row = headers. Use <code>;</code> to separate multiple skills within the skills column.</p>
+        <p class="form__error" id="csv-error" hidden></p>
+        <footer class="form__actions">
+          <button type="button" class="btn btn--ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary" id="csv-submit">Import CSV</button>
+        </footer>
+      </form>
+
     </div>
   </div>
 
