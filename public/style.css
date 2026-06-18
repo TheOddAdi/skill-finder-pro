@@ -374,7 +374,7 @@ mark {
 }
 
 .profile__cover {
-  height: 120px;
+  height: 160px;
   background: linear-gradient(120deg,
       var(--primary),
       var(--primary-glow) 55%,
@@ -383,7 +383,7 @@ mark {
 
 @media (min-width: 640px) {
   .profile__cover {
-    height: 144px;
+    height: 200px;
   }
 }
 
