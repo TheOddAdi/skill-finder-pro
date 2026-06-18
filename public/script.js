@@ -132,6 +132,14 @@ function renderProfile(emp) {
         </dl>
 
         <section class="profile__section">
+          <h2>Contact</h2>
+          <p class="profile__bio">
+            ${emp.email ? `📧 <a href="mailto:${escapeHTML(emp.email)}">${escapeHTML(emp.email)}</a>` : ""}
+            ${emp.phone ? `<br/>📞 <a href="tel:${escapeHTML(emp.phone)}">${escapeHTML(emp.phone)}</a>` : ""}
+          </p>
+        </section>
+
+        <section class="profile__section">
           <h2>About</h2>
           <p class="profile__bio">${escapeHTML(emp.bio)}</p>
         </section>
