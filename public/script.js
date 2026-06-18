@@ -192,7 +192,11 @@ function closeModal() {
   $modal.hidden = true;
   $modal.setAttribute("aria-hidden", "true");
   $form.reset();
+  document.getElementById("json-form")?.reset();
+  document.getElementById("csv-form")?.reset();
   $formError.hidden = true;
+  document.getElementById("json-error")?.setAttribute("hidden", "");
+  document.getElementById("csv-error")?.setAttribute("hidden", "");
 }
 
 $addBtn.addEventListener("click", openModal);
