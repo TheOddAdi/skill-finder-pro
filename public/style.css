@@ -366,6 +366,7 @@ mark {
 }
 
 .profile {
+  position: relative;
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -374,26 +375,33 @@ mark {
 }
 
 .profile__cover {
-  height: 160px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
   background: linear-gradient(120deg,
       var(--primary),
       var(--primary-glow) 55%,
       oklch(0.75 0.15 200));
+  z-index: 0;
 }
 
 @media (min-width: 640px) {
   .profile__cover {
-    height: 200px;
+    height: 240px;
   }
 }
 
 .profile__body {
-  padding: 0 24px 32px;
+  position: relative;
+  z-index: 1;
+  padding: 120px 24px 32px;
 }
 
 @media (min-width: 640px) {
   .profile__body {
-    padding: 0 40px 32px;
+    padding: 144px 40px 32px;
   }
 }
 
