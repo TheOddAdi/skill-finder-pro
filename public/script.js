@@ -4,6 +4,7 @@
    This file only renders, filters in memory, and runs the modal.
    ========================================================= */
 import { getAllEmployees, getEmployeeById, createEmployee } from "./logic/employees.js";
+import { importEmployeesFromJSON } from "./data/io.js";
 import { getResumeDownloadUrl } from "./logic/storage.js";
 
 // In-memory cache of all employees (fetched on load + after add).
