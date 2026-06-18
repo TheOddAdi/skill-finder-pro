@@ -44,7 +44,7 @@ function toRow(input) {
     rank: input.rank ?? null,
     skills: input.skills ?? [],
     bio: input.bio ?? null,
-    linkedin_url: input.linkedin_url ?? input.linkedin ?? null,
+    linkedin_url: withProtocol(input.linkedin_url ?? input.linkedin ?? null),
     email,
     phone,
     resume_file_url: input.resume_file_url ?? input.resume ?? null,
