@@ -19,7 +19,9 @@ function fromRow(row) {
     skills: Array.isArray(row.skills) ? row.skills : [],
     bio: row.bio ?? "",
     linkedin: row.linkedin_url ?? "",
-    resume: row.resume_file_url ?? "", // storage path OR legacy url
+    email: row.email ?? "",
+    phone: row.phone ?? "",
+    resume: row.resume_file_url ?? "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -27,6 +29,8 @@ function fromRow(row) {
 
 /** Map the UI shape (or a JSON import row) to a DB row. */
 function toRow(input) {
+  const email = (input.email ?? "").toString().trim().toLowerCase() || null;
+  const phone = (input.phone ?? "").toString().trim() || null;
   return {
     full_name: input.full_name ?? input.name,
     role: input.role ?? input.title ?? null,
@@ -35,6 +39,8 @@ function toRow(input) {
     skills: input.skills ?? [],
     bio: input.bio ?? null,
     linkedin_url: input.linkedin_url ?? input.linkedin ?? null,
+    email,
+    phone,
     resume_file_url: input.resume_file_url ?? input.resume ?? null,
   };
 }
