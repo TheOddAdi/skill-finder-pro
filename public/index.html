@@ -153,10 +153,10 @@
           </label>
           <label class="field field--full">
             <span>…or paste CSV text</span>
-            <textarea name="csv_text" rows="8" placeholder="full_name,role,department,rank,skills,bio,linkedin_url&#10;Jane Doe,Engineer,Eng,Senior,Python;SQL,Bio here,https://…"></textarea>
+            <textarea name="csv_text" rows="8" placeholder="full_name,role,email,phone,department,rank,skills,bio,linkedin_url&#10;Jane Doe,Engineer,jane@x.com,555-1212,Eng,Senior,Python;SQL,Bio,https://…"></textarea>
           </label>
         </div>
-        <p class="form__hint">First row = headers. Use <code>;</code> to separate multiple skills within the skills column.</p>
+        <p class="form__hint">First row = headers. <code>email</code> is required and must be unique. Use <code>;</code> to separate multiple skills.</p>
         <p class="form__error" id="csv-error" hidden></p>
         <footer class="form__actions">
           <button type="button" class="btn btn--ghost" data-close>Cancel</button>
