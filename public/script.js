@@ -368,6 +368,8 @@ function csvToEmployeeRows(text) {
     return {
       full_name: obj.full_name || obj.name || "",
       role: obj.role || obj.title || "",
+      email: (obj.email || "").toLowerCase(),
+      phone: obj.phone || null,
       department: obj.department || null,
       rank: obj.rank || null,
       skills: String(obj.skills || "")
