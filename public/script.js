@@ -229,6 +229,8 @@ $form.addEventListener("submit", async (e) => {
   const payload = {
     full_name: String(fd.get("full_name") || "").trim(),
     role: String(fd.get("role") || "").trim(),
+    email: String(fd.get("email") || "").trim().toLowerCase(),
+    phone: String(fd.get("phone") || "").trim() || null,
     department: String(fd.get("department") || "").trim() || null,
     rank: String(fd.get("rank") || "").trim() || null,
     skills,
@@ -236,8 +238,13 @@ $form.addEventListener("submit", async (e) => {
     linkedin_url: String(fd.get("linkedin_url") || "").trim() || null,
   };
 
-  if (!payload.full_name || !payload.role || skills.length === 0) {
-    $formError.textContent = "Name, role, and at least one skill are required.";
+  if (!payload.full_name || !payload.role || !payload.email || skills.length === 0) {
+    $formError.textContent = "Name, role, email, and at least one skill are required.";
+    $formError.hidden = false;
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+    $formError.textContent = "Please enter a valid email address.";
     $formError.hidden = false;
     return;
   }
