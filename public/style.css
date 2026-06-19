@@ -374,34 +374,28 @@ mark {
   box-shadow: var(--shadow-card);
 }
 
-.profile__cover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
+.profile__header {
   background: linear-gradient(120deg,
       var(--primary),
       var(--primary-glow) 55%,
       oklch(0.75 0.15 200));
-  z-index: 0;
+  padding: 32px 24px 24px;
+  border-radius: 24px 24px 0 0;
 }
 
 @media (min-width: 640px) {
-  .profile__cover {
-    height: 240px;
+  .profile__header {
+    padding: 40px 40px 32px;
   }
 }
 
 .profile__body {
-  position: relative;
-  z-index: 1;
-  padding: 120px 24px 32px;
+  padding: 24px 24px 32px;
 }
 
 @media (min-width: 640px) {
   .profile__body {
-    padding: 144px 40px 32px;
+    padding: 32px 40px 32px;
   }
 }
 
@@ -410,7 +404,6 @@ mark {
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  margin-top: -48px;
 }
 
 @media (min-width: 640px) {
@@ -418,7 +411,6 @@ mark {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    margin-top: -64px;
   }
 }
 

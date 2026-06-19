@@ -113,8 +113,7 @@ function renderProfile(emp) {
   return `
     <button class="back-btn" id="back-btn" aria-label="Back to search">← Back to search</button>
     <article class="profile">
-      <div class="profile__cover"></div>
-      <div class="profile__body">
+      <div class="profile__header">
         <div class="profile__head">
           <div class="profile__identity">
             <div>
@@ -124,7 +123,8 @@ function renderProfile(emp) {
           </div>
           <div class="profile__actions">${linkedinBtn}${resumeBtn}</div>
         </div>
-
+      </div>
+      <div class="profile__body">
         <dl class="profile__stats">
           <div><dt>Department</dt><dd>${escapeHTML(emp.department)}</dd></div>
           <div><dt>Seniority</dt><dd>${escapeHTML(emp.rank)}</dd></div>
