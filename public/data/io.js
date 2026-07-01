@@ -1,12 +1,12 @@
 /* =========================================================
    JSON import / export utilities.
-   Bulk-load employees.json into the database, or dump it back.
+   Bulk-load employee arrays into the database, or dump it back.
    ========================================================= */
 import { supabase } from "../logic/supabaseClient.js";
 import { createEmployee, getAllEmployees } from "../logic/employees.js";
 
 /**
- * Import an array of employee objects (matching employees.json shape)
+ * Import an array of employee objects (matching the static employee JSON shape)
  * into the database. Returns the number of rows inserted.
  * Pass { replace: true } to wipe the table first.
  */
@@ -27,17 +27,6 @@ export async function importEmployeesFromJSON(rows, { replace = false } = {}) {
     inserted++;
   }
   return inserted;
-}
-
-/** Fetch /data/employees.json from the static folder and import it. */
-export async function importEmployeesFromFile(
-  path = "/public/data/employees.json",
-  opts,
-) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  const rows = await res.json();
-  return importEmployeesFromJSON(rows, opts);
 }
 
 /** Dump the current database to a JSON-serializable array. */
