@@ -1,6 +1,6 @@
 /* =========================================================
    JSON import / export utilities.
-   Bulk-load employees.json into the database, or dump it back.
+   Bulk-load employee arrays into the database, or dump it back.
    ========================================================= */
 import { supabase } from "../logic/supabaseClient.js";
 import { createEmployee, getAllEmployees } from "../logic/employees.js";
