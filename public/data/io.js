@@ -6,7 +6,7 @@ import { supabase } from "../logic/supabaseClient.js";
 import { createEmployee, getAllEmployees } from "../logic/employees.js";
 
 /**
- * Import an array of employee objects (matching employees.json shape)
+ * Import an array of employee objects (matching the static employee JSON shape)
  * into the database. Returns the number of rows inserted.
  * Pass { replace: true } to wipe the table first.
  */
