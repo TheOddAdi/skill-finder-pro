@@ -29,18 +29,8 @@ export async function importEmployeesFromJSON(rows, { replace = false } = {}) {
   return inserted;
 }
 
-/** Fetch /data/employees.json from the static folder and import it. */
-export async function importEmployeesFromFile(
-  path = "/public/data/employees.json",
-  opts,
-) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  const rows = await res.json();
-  return importEmployeesFromJSON(rows, opts);
-}
-
 /** Dump the current database to a JSON-serializable array. */
+export async function exportEmployeesToJSON() {
 export async function exportEmployeesToJSON() {
   const employees = await getAllEmployees();
   return employees.map((e) => ({
