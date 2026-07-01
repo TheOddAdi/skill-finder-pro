@@ -31,7 +31,6 @@ export async function importEmployeesFromJSON(rows, { replace = false } = {}) {
 
 /** Dump the current database to a JSON-serializable array. */
 export async function exportEmployeesToJSON() {
-export async function exportEmployeesToJSON() {
   const employees = await getAllEmployees();
   return employees.map((e) => ({
     full_name: e.name,
